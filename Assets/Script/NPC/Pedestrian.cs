@@ -1,25 +1,27 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public abstract class Pedestrian : MonoBehaviour
+public class Pedestrian : MonoBehaviour
 {
-    public enum NPCState 
-    { 
+    public enum NPCState
+    {
         Patrol,
-        Suspicious, 
-        Detected 
+        Suspicious,
+        Detected
     }
 
-    [Header("Base View")]
+    [Header("View")]
     public float viewAngle = 60f;
     public float suspiciousRadius = 20f;
     public float detectRadius = 10f;
-    public float suspiciousStopDistance = 3.5f; // 离玩家多远停下
-    public float suspiciousObserveTime = 2.5f;  // 停下来观察多久
+    public LayerMask obstacleMask;
+
+    [Header("Suspicious Behavior")]
+    public float suspiciousStopDistance = 3.5f;
+    public float observeTime = 2.5f;
+    public float stabilityDrainMultiplier = 1.5f;
 
     [Header("Movement")]
     public float patrolSpeed = 1.5f;
@@ -27,97 +29,173 @@ public abstract class Pedestrian : MonoBehaviour
 
     [Header("References")]
     public Transform player;
-    protected PlayerMove playerMove;
-    protected Stability playerStability;
-    protected NavMeshAgent agent;
+    public Animator animator;
+
+    NavMeshAgent agent;
+    PlayerMove playerMove;
+    Stability stability;
 
     [Header("Patrol")]
-    [SerializeField] protected Transform[] patrolPoints;
-    protected int patrolIndex = 0;
+    public Transform[] patrolPoints;
+    int patrolIndex;
 
-    protected NPCState currentState = NPCState.Patrol;
+    NPCState currentState = NPCState.Patrol;
+    bool observing = false;
 
-    protected bool observing = false;
-
-    protected virtual void Awake()
+    void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         playerMove = player.GetComponent<PlayerMove>();
-        playerStability = player.GetComponent<Stability>();
+        stability = player.GetComponent<Stability>();
     }
 
-    protected virtual void Update()
+    void Update()
     {
-        if (playerMove != null && playerMove.isHidden)
+        if (playerMove.isHidden)
         {
-            //Todo: 玩家隐藏时npc闲逛
-            SetState(NPCState.Patrol);
+            SetPatrol();
             return;
         }
 
-        //npc与玩家的距离
         float dist = Vector3.Distance(transform.position, player.position);
 
-        //不在视野中npc闲逛
-        if (!InView(player)) 
+        if (!InView(player) || IsBlocked(player))
         {
-            SetState(NPCState.Patrol);
+            SetPatrol();
             return;
         }
 
-        if(dist < detectRadius)
-            SetState(NPCState.Detected);
-        else if(dist < suspiciousRadius)
-            SetState(NPCState.Suspicious);
-        else
-            SetState(NPCState.Patrol);
-    }
-
-    protected virtual void SetState(NPCState newState)
-    {
-        currentState = newState;
-
-        switch (currentState)
+        if (dist <= detectRadius)
         {
-            case NPCState.Patrol:
-                agent.speed = patrolSpeed;
-                OnPatrol();
-                break;
-
-            case NPCState.Suspicious:
-                agent.speed = alertSpeed;
-                OnSuspicious();
-                break;
-
-            case NPCState.Detected:
-                agent.speed = alertSpeed;
-                OnDetected();
-                break;
+            SetDetected();
+        }
+        else if (dist <= suspiciousRadius)
+        {
+            SetSuspicious();
+        }
+        else
+        {
+            SetPatrol();
         }
     }
 
-    protected bool InView(Transform target)
+    // ======================
+    // 状态切换
+    // ======================
+
+    void SetPatrol()
+    {
+        if (currentState == NPCState.Patrol) return;
+
+        currentState = NPCState.Patrol;
+        observing = false;
+
+        agent.speed = patrolSpeed;
+        agent.isStopped = false;
+
+        animator.SetBool("Walk", true);
+        animator.SetBool("Observe", false);
+    }
+
+    void SetSuspicious()
+    {
+        if (currentState == NPCState.Suspicious && observing) return;
+
+        currentState = NPCState.Suspicious;
+        agent.speed = alertSpeed;
+
+        stability.SetDrainMultiplier(stabilityDrainMultiplier);
+
+        if (!observing)
+            StartCoroutine(SuspiciousRoutine());
+    }
+
+    void SetDetected()
+    {
+        if (currentState == NPCState.Detected) return;
+
+        currentState = NPCState.Detected;
+        GameManager.Instance.GameOver();
+    }
+
+    // ======================
+    // 行为
+    // ======================
+
+    IEnumerator SuspiciousRoutine()
+    {
+        observing = true;
+
+        // 走向玩家
+        agent.isStopped = false;
+        animator.SetBool("Walk", true);
+        animator.SetBool("Observe", false);
+
+        while (Vector3.Distance(transform.position, player.position) > suspiciousStopDistance)
+        {
+            agent.SetDestination(player.position);
+            LookAtPlayer();
+            yield return null;
+        }
+
+        // 停下观察
+        agent.isStopped = true;
+        animator.SetBool("Walk", false);
+        animator.SetBool("Observe", true);
+
+        yield return new WaitForSeconds(observeTime);
+
+        // 恢复
+        stability.SetDrainMultiplier(1f);
+        SetPatrol();
+    }
+
+    // ======================
+    // 视野 & 工具
+    // ======================
+
+    bool InView(Transform target)
     {
         Vector3 dir = (target.position - transform.position).normalized;
         float angle = Vector3.Angle(transform.forward, dir);
-        return angle < viewAngle / 2f;
+        return angle <= viewAngle * 0.5f;
     }
 
-    protected void LookAtPlayer()
+    bool IsBlocked(Transform target)
+    {
+        Vector3 origin = transform.position + Vector3.up * 1.6f;
+        Vector3 dir = (target.position + Vector3.up) - origin;
+
+        if (Physics.Raycast(origin, dir, out RaycastHit hit, suspiciousRadius, obstacleMask))
+        {
+            return hit.transform != target;
+        }
+
+        return false;
+    }
+
+    void LookAtPlayer()
     {
         Vector3 dir = player.position - transform.position;
         dir.y = 0;
         transform.rotation = Quaternion.Slerp(
-        transform.rotation,
-        Quaternion.LookRotation(dir),
-        Time.deltaTime * 4f
+            transform.rotation,
+            Quaternion.LookRotation(dir),
+            Time.deltaTime * 5f
         );
     }
 
-    // 给子类用的接口
-    protected abstract void OnPatrol();
-    protected abstract void OnSuspicious();
-    protected abstract void OnDetected();
+    void FixedUpdate()
+    {
+        if (currentState == NPCState.Patrol && patrolPoints.Length > 0 && !agent.pathPending)
+        {
+            if (!agent.hasPath || agent.remainingDistance < 0.3f)
+            {
+                agent.SetDestination(patrolPoints[patrolIndex].position);
+                patrolIndex = (patrolIndex + 1) % patrolPoints.Length;
+            }
+        }
+    }
 
 #if UNITY_EDITOR
     void OnDrawGizmos()
@@ -180,4 +258,3 @@ public abstract class Pedestrian : MonoBehaviour
     }
 #endif
 }
-

@@ -8,6 +8,7 @@ public class Stability : MonoBehaviour
     public float maxStability = 100f;       
     public float currentStability = 100f;   
     public float idleDrainPerSecond = 2f;
+    float drainMultiplier = 1f;
 
     //TODO: 一些道具的参数到时候添加
 
@@ -28,7 +29,7 @@ public class Stability : MonoBehaviour
     //稳定度随时间流逝
     private void DrainOverTime()
     {
-        currentStability -= idleDrainPerSecond * Time.deltaTime;
+        currentStability -= idleDrainPerSecond * drainMultiplier * Time.deltaTime;
         currentStability = Mathf.Clamp(currentStability, 0f, maxStability);
     }
 
@@ -57,5 +58,16 @@ public class Stability : MonoBehaviour
     {
         currentStability -= value;
         currentStability = Mathf.Clamp(currentStability, 0f, maxStability);      
+    }
+
+    public bool IsDead()
+    {
+        return currentStability <= 0;
+    }
+
+
+    public void SetDrainMultiplier(float value)
+    {
+        drainMultiplier = value;
     }
 }

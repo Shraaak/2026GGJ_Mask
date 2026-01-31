@@ -26,6 +26,10 @@ public class PlayerMove : MonoBehaviour
 
     [Header("Anim")]
     public Animator anim;
+
+    [Header("Footstep")]
+    public float footstepInterval = 0.45f; // 两步之间的时间
+    private float footstepTimer = 0f;
     private bool IsWalk = false;
 
     private Rigidbody rb;
@@ -53,6 +57,7 @@ public class PlayerMove : MonoBehaviour
 
     void Update()
     {
+        HandleFootstep();
 
         if (!canMove)
         {
@@ -88,9 +93,14 @@ public class PlayerMove : MonoBehaviour
         //冲刺逻辑
         if (Input.GetKey(KeyCode.LeftShift) && stamina != null && stamina.CanDash())
         {
+            footstepInterval = 0.25f;
             if(!freeDash)
                 stamina.ConsumeSprint();
             moveInput *= dashMultiplier;
+        }
+        else
+        {
+            footstepInterval = 0.45f;
         }
     }
 
@@ -115,5 +125,32 @@ public class PlayerMove : MonoBehaviour
     public void EnableFreeDash(bool value)
     {
         freeDash = value;
+    }
+
+    void HandleFootstep()
+    {
+        if (!canMove || isHidden)
+        return;
+
+        if (!IsWalk)
+        {
+            footstepTimer = 0f; // 停下来时重置计时
+            return;
+        }
+
+        // 计时
+        footstepTimer += Time.deltaTime;
+
+        if (footstepTimer >= footstepInterval)
+        {
+            footstepTimer = 0f;
+
+            // 播放脚步声
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayOneShot("Footstep");
+            }
+        }
+
     }
 }

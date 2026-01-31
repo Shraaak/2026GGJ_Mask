@@ -15,6 +15,7 @@ public enum ItemType
 public class ItemData : ScriptableObject
 {
     public ItemType itemType;
-    public Sprite icon;
+    public Sprite BarIcon;
+    public Sprite UIIcon;
     public float workingTime;
 }

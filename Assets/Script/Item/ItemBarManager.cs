@@ -28,6 +28,7 @@ public class ItemBarManager : MonoBehaviour
     // 添加道具（拾取时调用）
     public bool AddItem(ItemData item)
     {
+        AudioManager.Instance.PlayOneShot("GetItem");
         foreach (var slot in slots)
         {
             if (slot.IsEmpty)
@@ -57,21 +58,25 @@ public class ItemBarManager : MonoBehaviour
         switch (item.itemType)
         {
             case ItemType.Cloak:
+                AudioManager.Instance.PlayOneShot("ClothUse");
                 // TODO: 稳定度暂停
                 StartCoroutine(CloakCoroutine(item.workingTime));
                 break;
 
             case ItemType.PlumJuice:
+                AudioManager.Instance.PlayOneShot("JuiceUse");
                 // TODO: 节奏 +30%
                 StartCoroutine(PlumJuiceCoroutine(item.workingTime));
                 break;
 
             case ItemType.SpicyNoodle:
+                AudioManager.Instance.PlayOneShot("NoodleUse");
                 // TODO: 暂停 + 后惩罚
                 StartCoroutine(SpicyNoodleCoroutine(item.workingTime));
                 break;
                 
             case ItemType.Skateboard:
+                AudioManager.Instance.PlayOneShot("SketeboardsUse");
                 // TODO: 冲刺不耗体力
                 StartCoroutine(SkateboardCoroutine(item.workingTime));
                 break;

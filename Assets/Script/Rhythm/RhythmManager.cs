@@ -62,6 +62,7 @@ public class RhythmManager : MonoBehaviour
         // 3️⃣ 按键判定
         if (Input.GetKeyDown(KeyCode.Space))
         {
+            AudioManager.Instance.PlayOneShot("Hit1");
             Judge(songTime);
             return;
         }

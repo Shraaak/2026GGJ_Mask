@@ -20,7 +20,11 @@ public class CabinetCover : Cover
         opened = true;
 
         if (cabinetAnimator != null)
+        {
+            print("触发动画");
             cabinetAnimator.SetTrigger(openTrigger);
+        }
+            
     }
 
     public override bool CanEnter()
