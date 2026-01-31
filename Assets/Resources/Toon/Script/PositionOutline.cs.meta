@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 375d515a8c05a254a8af7f4b3ad16726
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - Toon: {fileID: 4800000, guid: 7b1800ad42ed17b40aa863e055328b8e, type: 3}
+  - OutlineShader: {fileID: -6465566751694194690, guid: 4e7cdc0e9464e15459f05446bbf4442f, type: 3}
+  - outlineMaterial: {instanceID: 0}
+  - renderer: {instanceID: 0}
+  - ToonMaterial: {instanceID: 0}
+  - New_OutlineMaterial: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

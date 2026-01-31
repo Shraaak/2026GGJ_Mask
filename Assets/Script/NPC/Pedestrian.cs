@@ -122,7 +122,6 @@ public abstract class Pedestrian : MonoBehaviour
 #if UNITY_EDITOR
     void OnDrawGizmos()
     {
-        Debug.Log("Draw Gizmos");
         if (!enabled) return;
 
         Vector3 pos = transform.position + Vector3.up * 0.1f;
