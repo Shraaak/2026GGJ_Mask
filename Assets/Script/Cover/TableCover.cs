@@ -7,9 +7,8 @@ public class TableCover : Cover
         coverType = CoverType.Table;
     }
 
-    public override void OnEnter()
+    public override bool CanEnter()
     {
-        // 桌子一般不需要动画
-        // 你也可以在这放个音效
+        return !isOccupied;
     }
 }

@@ -17,6 +17,11 @@ public class Cover : MonoBehaviour
     [HideInInspector]
     public bool isOccupied = false;
 
+    public virtual bool CanEnter()
+    {
+        return !isOccupied;
+    }
+
     // 给 PlayerCoverController 调用
     public virtual void OnOpen() { }
     public virtual void OnEnter() { }

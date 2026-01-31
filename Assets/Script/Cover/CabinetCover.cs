@@ -4,7 +4,7 @@ public class CabinetCover : Cover
 {
     [Header("Cabinet")]
     public Animator cabinetAnimator;
-    public string openTrigger = "Open";
+    public string openTrigger = "OpenCabinet";
 
     private bool opened = false;
 
@@ -23,19 +23,18 @@ public class CabinetCover : Cover
             cabinetAnimator.SetTrigger(openTrigger);
     }
 
+    public override bool CanEnter()
+    {
+        return opened && !isOccupied;
+    }
+
     public override void OnEnter()
     {
-        // 进入柜子时也可以加音效 / 事件
+        // 可加音效 / 事件
     }
 
     public override void OnExit()
     {
-        // 48h 期间不建议关门，避免状态复杂
-        // 如果你要关门，这里再加 Close Trigger
-    }
-
-    public bool IsOpened()
-    {
-        return opened;
+        // 48h 不建议关门
     }
 }

@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class PlayerCoverController : MonoBehaviour
@@ -13,13 +12,12 @@ public class PlayerCoverController : MonoBehaviour
     public Animator animator;
 
     private Cover currentCover;
-    private bool cabinetOpened = false;
 
     void Update()
     {
         if (playerMove == null) return;
 
-        // Exit cover
+        // 退出掩体
         if (playerMove.isHidden && Input.GetKeyDown(KeyCode.Escape))
         {
             ExitCover();
@@ -29,65 +27,48 @@ public class PlayerCoverController : MonoBehaviour
         if (!playerMove.canMove)
             return;
 
-        // Q：打开柜子（只对柜子生效）
+        // Q：打开（只有柜子有反应）
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            TryOpenCabinet();
+            print("打开柜子");
+            Cover cover = RaycastCover();
+            if (cover != null)
+                cover.OnOpen();
         }
 
-        // E：进入掩体（桌子 / 已打开的柜子）
+        // E：进入掩体
         if (Input.GetKeyDown(KeyCode.E))
         {
             TryEnterCover();
         }
     }
 
-    void TryOpenCabinet()
+    void TryEnterCover()
     {
         Cover cover = RaycastCover();
         if (cover == null) return;
 
-        if (cover.coverType != CoverType.Cabinet)
+        if (!cover.CanEnter())
             return;
 
-        if (cabinetOpened)
-            return;
-
-        currentCover = cover;
-        cabinetOpened = true;
-
-        // 播放打开柜子的动画
-        if (animator != null)
-            animator.SetTrigger("OpenCabinet");
-    }
-
-    void TryEnterCover()
-    {
-        Cover cover = RaycastCover();
-        if (cover == null || cover.isOccupied)
-            return;
-
-        // 桌子：直接进入
-        if (cover.coverType == CoverType.Table)
-        {
-            EnterCover(cover);
-            return;
-        }
-
-        // 柜子：必须先打开
-        if (cover.coverType == CoverType.Cabinet && cabinetOpened)
-        {
-            EnterCover(cover);
-        }
+        EnterCover(cover);
     }
 
     Cover RaycastCover()
     {
+        print("发出射线");
+
         Ray ray = new Ray(transform.position + Vector3.up * 0.8f, transform.forward);
         RaycastHit hit;
 
-        if (!Physics.Raycast(ray, out hit, detectDistance, coverLayer))
+        if (!Physics.Raycast(ray, out hit, detectDistance))
+        {
+            print("无");
             return null;
+        }
+
+        print(hit.collider.GetComponent<Cover>());
+        
 
         return hit.collider.GetComponent<Cover>();
     }
@@ -96,6 +77,7 @@ public class PlayerCoverController : MonoBehaviour
     {
         currentCover = cover;
         cover.isOccupied = true;
+        cover.OnEnter();
 
         rb.velocity = Vector3.zero;
         playerMove.canMove = false;
@@ -115,8 +97,8 @@ public class PlayerCoverController : MonoBehaviour
         if (currentCover == null) return;
 
         currentCover.isOccupied = false;
+        currentCover.OnExit();
         currentCover = null;
-        cabinetOpened = false;
 
         playerMove.canMove = true;
         playerMove.isHidden = false;
@@ -127,13 +109,17 @@ public class PlayerCoverController : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    void OnDrawGizmosSelected()
+    void OnDrawGizmos()
     {
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawLine(
-            transform.position + Vector3.up * 0.8f,
-            transform.position + Vector3.up * 0.8f + transform.forward * detectDistance
-        );
+        Vector3 origin = transform.position + Vector3.up * 0.8f;
+        Vector3 dir = transform.forward;
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawRay(origin, dir * detectDistance);
+
+        // 画一个小球，表示射线终点
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(origin + dir * detectDistance, 0.05f);
     }
 #endif
 }
