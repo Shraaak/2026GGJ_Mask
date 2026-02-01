@@ -9,6 +9,7 @@ public class BadUI : MonoBehaviour
     public CanvasGroup uiCanvasGroup;
     public TextMeshProUGUI dialogueText;
     public Image bgImage;
+    public GameObject missUI;
 
     [Header("文本配置")]
     [TextArea(3, 5)]
@@ -33,6 +34,7 @@ public class BadUI : MonoBehaviour
     // 外部调用：开始显示失败UI
     public void ShowBadUI()
     {
+        missUI.gameObject.SetActive(false);
         gameObject.SetActive(true);
         StartCoroutine(FadeInUI());
     }
