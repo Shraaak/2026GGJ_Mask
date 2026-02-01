@@ -2,9 +2,6 @@ using UnityEngine;
 
 public class CabinetCover : Cover
 {
-    [Header("Cabinet")]
-    public Animator cabinetAnimator;
-    public string openTrigger = "OpenCabinet";
 
     private bool opened = false;
 
@@ -18,12 +15,6 @@ public class CabinetCover : Cover
         if (opened) return;
 
         opened = true;
-
-        if (cabinetAnimator != null)
-        {
-            print("触发动画");
-            cabinetAnimator.SetTrigger(openTrigger);
-        }
             
     }
 

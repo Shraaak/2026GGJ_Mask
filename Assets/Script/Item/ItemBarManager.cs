@@ -6,7 +6,7 @@ using UnityEngine;
 public class ItemBarManager : MonoBehaviour
 {
     [Header("Settings")]
-    public ItemSlot[] slots = new ItemSlot[4];
+    public ItemSlot[] slots = new ItemSlot[3];
     public ItemData testItemData;
     public PlayerMove playerMove;
     public RhythmManager rhythm;
@@ -22,7 +22,6 @@ public class ItemBarManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha1)) UseItem(0);
         if (Input.GetKeyDown(KeyCode.Alpha2)) UseItem(1);
         if (Input.GetKeyDown(KeyCode.Alpha3)) UseItem(2);
-        if (Input.GetKeyDown(KeyCode.Alpha4)) UseItem(3);
     }
 
     // 添加道具（拾取时调用）
@@ -57,12 +56,6 @@ public class ItemBarManager : MonoBehaviour
         //通过枚举实现各个道具功能
         switch (item.itemType)
         {
-            case ItemType.Cloak:
-                AudioManager.Instance.PlayOneShot("ClothUse");
-                // TODO: 稳定度暂停
-                StartCoroutine(CloakCoroutine(item.workingTime));
-                break;
-
             case ItemType.PlumJuice:
                 AudioManager.Instance.PlayOneShot("JuiceUse");
                 // TODO: 节奏 +30%
@@ -83,20 +76,6 @@ public class ItemBarManager : MonoBehaviour
         }
     }
 
-    IEnumerator CloakCoroutine(float duration)
-    {
-        // 玩家不能动
-        playerMove.canMove = false;
-
-        // 告诉 NPC：玩家是隐藏态
-        playerMove.isHidden = true;
-
-        yield return new WaitForSeconds(duration);
-
-        playerMove.canMove = true;
-        playerMove.isHidden = false;
-    }
-
     IEnumerator PlumJuiceCoroutine(float duration)
     {
 
@@ -111,9 +90,9 @@ public class ItemBarManager : MonoBehaviour
 
     IEnumerator SpicyNoodleCoroutine(float duration)
     {
-        // 扣血
-        playerMove.stability.ReduceStability(10);
-        //图标消失
+        // ===== 新增：调用暂停节拍系统 =====
+        playerMove.GetComponent<RhythmManager>().PauseRhythm(duration);
+        // =================================
 
         yield return new WaitForSeconds(duration);
 
@@ -122,7 +101,6 @@ public class ItemBarManager : MonoBehaviour
         yield return new WaitForSeconds(20f);
 
         rhythm.SetSpeedMultiplier(1f);
-        //图标恢复
     }
 
 

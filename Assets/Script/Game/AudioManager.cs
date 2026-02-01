@@ -82,7 +82,7 @@ public class AudioManager : MonoBehaviour
     /// <summary>
     /// 根据名字找到对应的 Sound
     /// </summary>
-    Sound GetSound(string name)
+    public Sound GetSound(string name)
     {
         foreach (Sound s in sounds)
         {

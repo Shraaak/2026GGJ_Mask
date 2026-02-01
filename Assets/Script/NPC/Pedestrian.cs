@@ -77,6 +77,29 @@ public class Pedestrian : MonoBehaviour
         {
             SetPatrol();
         }
+
+        UpdateAnimatorByRealMovement();
+    }
+
+    void UpdateAnimatorByRealMovement()
+    {
+        // 1. 判定NPC是否真的在移动（导航没停 + 有移动速度）
+        bool isReallyMoving = !agent.isStopped && agent.velocity.magnitude > 0.1f;
+        
+        // 2. 巡逻状态：强制同步Walk/Idle
+        if (currentState == NPCState.Patrol)
+        {
+            animator.SetBool("Walk", isReallyMoving);
+            animator.SetBool("Idle", !isReallyMoving);
+            animator.SetBool("Observe", false);
+        }
+        // 3. 怀疑状态：强制同步Observe相关动画
+        else if (currentState == NPCState.Suspicious)
+        {
+            animator.SetBool("Walk", isReallyMoving);
+            animator.SetBool("Idle", !isReallyMoving);
+            animator.SetBool("Observe", true);
+        }
     }
 
     // ======================
@@ -95,6 +118,7 @@ public class Pedestrian : MonoBehaviour
 
         animator.SetBool("Walk", true);
         animator.SetBool("Observe", false);
+        animator.SetBool("Idle", false);
     }
 
     void SetSuspicious()
@@ -130,6 +154,7 @@ public class Pedestrian : MonoBehaviour
         agent.isStopped = false;
         animator.SetBool("Walk", true);
         animator.SetBool("Observe", false);
+        animator.SetBool("Idle", false);
 
         while (Vector3.Distance(transform.position, player.position) > suspiciousStopDistance)
         {
@@ -142,6 +167,7 @@ public class Pedestrian : MonoBehaviour
         agent.isStopped = true;
         animator.SetBool("Walk", false);
         animator.SetBool("Observe", true);
+        animator.SetBool("Idle", true);
 
         yield return new WaitForSeconds(observeTime);
 

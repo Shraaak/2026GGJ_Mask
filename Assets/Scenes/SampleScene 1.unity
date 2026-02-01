@@ -681,8 +681,6 @@ MonoBehaviour:
   coverType: 1
   hidePoint: {fileID: 94484330}
   isOccupied: 0
-  cabinetAnimator: {fileID: 28437831}
-  openTrigger: Open
 --- !u!65 &28437834
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3372,6 +3370,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   iconImage: {fileID: 527241718}
+  UIAnim: {fileID: 0}
+  uiSprite: {fileID: 0}
 --- !u!1001 &175243006
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6134,6 +6134,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   iconImage: {fileID: 1236784680}
+  UIAnim: {fileID: 0}
+  uiSprite: {fileID: 0}
 --- !u!114 &335054053
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7615,6 +7617,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   iconImage: {fileID: 1904018723}
+  UIAnim: {fileID: 0}
+  uiSprite: {fileID: 0}
 --- !u!1001 &417951231
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18187,6 +18191,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   follow: {fileID: 1941999159}
+  smoothSpeed: 5
+  useDamping: 1
+  dampingFactor: 0.1
 --- !u!1001 &965792727
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21668,6 +21675,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   iconImage: {fileID: 2081125870}
+  UIAnim: {fileID: 0}
+  uiSprite: {fileID: 0}
 --- !u!4 &1166175184 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3117473994692236937, guid: ed7a8441bc8a9e042b68e5c08b5d0286, type: 3}
@@ -23891,6 +23900,9 @@ MonoBehaviour:
   badWindow: 0.22
   startSize: 300
   targetSize: 80
+  missUI: {fileID: 0}
+  missBlinkInterval: 0.5
+  missBlinkDuration: 2
 --- !u!4 &1275420650
 Transform:
   m_ObjectHideFlags: 0
@@ -27786,6 +27798,10 @@ MonoBehaviour:
   rhythm: {fileID: 1275420649}
   stability: {fileID: 1941999155}
   itemBar: {fileID: 1314927674}
+  paperUI: {fileID: 0}
+  tutorialUI: {fileID: 0}
+  badUI: {fileID: 0}
+  successUI: {fileID: 0}
 --- !u!4 &1478201431 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 537282334488648534, guid: b72b3a90d683f4e4d941a69d57b1ed78, type: 3}
@@ -36564,10 +36580,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   detectDistance: 1.5
+  capsuleRadius: 0.5
+  capsuleHeight: 1
+  heightOffset: 0.8
+  rayBackOffset: 0.3
+  coverKey: 113
   coverLayer:
     serializedVersion: 2
     m_Bits: 64
-  rb: {fileID: 1941999158}
   playerMove: {fileID: 1941999157}
   animator: {fileID: 575768900}
 --- !u!114 &1941999157
@@ -36589,6 +36609,7 @@ MonoBehaviour:
   canMove: 1
   isHidden: 0
   anim: {fileID: 575768900}
+  footstepInterval: 0.45
   stamina: {fileID: 1941999154}
   stability: {fileID: 1941999155}
 --- !u!54 &1941999158

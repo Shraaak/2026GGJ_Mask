@@ -47,10 +47,7 @@ public class PlayerMove : MonoBehaviour
             return;
         }
 
-        Instance = this;
-
-        // 如果跨场景保留
-        DontDestroyOnLoad(gameObject); 
+        Instance = this; 
 
         rb = GetComponent<Rigidbody>();
     }
@@ -64,6 +61,7 @@ public class PlayerMove : MonoBehaviour
             moveInput = Vector3.zero;
             IsWalk = false;
             anim.SetBool("IsWalk", IsWalk);
+            anim.SetBool("IsRun", false);
             return;
         }
 
@@ -97,10 +95,12 @@ public class PlayerMove : MonoBehaviour
             if(!freeDash)
                 stamina.ConsumeSprint();
             moveInput *= dashMultiplier;
+            anim.SetBool("IsRun", true);
         }
         else
         {
             footstepInterval = 0.45f;
+            anim.SetBool("IsRun", false);
         }
     }
 
@@ -117,10 +117,6 @@ public class PlayerMove : MonoBehaviour
     {
         dashMultiplier += value;
     }
-
-    /* =======================
-     * 掩体交互
-     * ======================= */
 
     public void EnableFreeDash(bool value)
     {

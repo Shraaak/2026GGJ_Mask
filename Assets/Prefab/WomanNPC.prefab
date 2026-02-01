@@ -97,7 +97,7 @@ MonoBehaviour:
   detectRadius: 2.08
   obstacleMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
   suspiciousStopDistance: 3.5
   observeTime: 2.5
   stabilityDrainMultiplier: 1.5
